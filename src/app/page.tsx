@@ -34,7 +34,7 @@ export default function Home() {
           </h1>
           <p className="text-xl text-zinc-400 mb-8 max-w-2xl mx-auto">
             Get grilled by Kaido, a ruthless AI venture capitalist. 
-            Score 8.0+ and get funded $1 USDC on Base. 
+            Score 8.0+ and get funded up to $100 USDC on Base. 
             Get roasted either way.
           </p>
           <div className="flex gap-4 justify-center">
@@ -61,7 +61,7 @@ export default function Home() {
               { step: "01", title: "Submit Your Pitch", desc: "Fill out a structured pitch form with your startup details" },
               { step: "02", title: "Face the Shark", desc: "Enter a live chat where Kaido grills you on your assumptions" },
               { step: "03", title: "Get Your Score", desc: "Receive a score (0-10) and brutally honest feedback" },
-              { step: "04", title: "Get Funded", desc: "Score 8.0+ = $1 USDC on Base + announcement on X" },
+              { step: "04", title: "Get Funded", desc: "Score 8.0+ = $1-$100 USDC on Base + announcement on X" },
             ].map((item) => (
               <div key={item.step} className="text-center">
                 <div className="text-4xl font-bold text-zinc-700 mb-2">{item.step}</div>
@@ -76,9 +76,9 @@ export default function Home() {
       {/* Stats */}
       <section className="py-20 px-6 border-t border-zinc-800 bg-zinc-950">
         <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
+          <div className="grid md:grid-cols-3 gap-8 text-center mb-12">
             <div>
-              <div className="text-4xl font-bold text-white mb-2">$1</div>
+              <div className="text-4xl font-bold text-white mb-2">$1-$100</div>
               <div className="text-zinc-500">Funding per startup</div>
             </div>
             <div>
@@ -88,6 +88,25 @@ export default function Home() {
             <div>
               <div className="text-4xl font-bold text-white mb-2">10</div>
               <div className="text-zinc-500">Pitches per day</div>
+            </div>
+          </div>
+          
+          {/* Funding Tiers */}
+          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+            <h3 className="text-lg font-semibold text-center mb-4">Funding Tiers</h3>
+            <div className="grid md:grid-cols-3 gap-4 text-center">
+              <div className="p-4 rounded-lg bg-zinc-800/50">
+                <div className="text-2xl font-bold text-white mb-1">$1-$4</div>
+                <div className="text-zinc-400 text-sm">Score 8.0 - 9.0</div>
+              </div>
+              <div className="p-4 rounded-lg bg-zinc-800/50">
+                <div className="text-2xl font-bold text-white mb-1">$5-$10</div>
+                <div className="text-zinc-400 text-sm">Score 9.1 - 9.9</div>
+              </div>
+              <div className="p-4 rounded-lg bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/30">
+                <div className="text-2xl font-bold text-amber-400 mb-1">$100</div>
+                <div className="text-zinc-400 text-sm">Perfect 10</div>
+              </div>
             </div>
           </div>
         </div>

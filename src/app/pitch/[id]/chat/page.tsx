@@ -24,6 +24,20 @@ interface Verdict {
   funded: boolean;
 }
 
+// Calculate funding amount based on score
+function getFundingAmount(score: number): number {
+  if (score === 10) return 100;
+  if (score >= 9.1 && score <= 9.9) {
+    const normalized = (score - 9.1) / 0.8;
+    return Math.round(5 + normalized * 5);
+  }
+  if (score >= 8.0 && score <= 9.0) {
+    const normalized = (score - 8.0) / 1.0;
+    return Math.round(1 + normalized * 3);
+  }
+  return 1;
+}
+
 export default function ChatPage() {
   const params = useParams();
   const router = useRouter();
@@ -158,7 +172,7 @@ export default function ChatPage() {
 
       if (res.ok) {
         const data = await res.json();
-        router.push(`/pitch/${pitchId}/funded?tx=${data.txHash}`);
+        router.push(`/pitch/${pitchId}/funded?tx=${data.txHash}&amount=${data.amount}`);
       } else {
         alert("Failed to process funding. Please try again.");
       }
@@ -275,7 +289,7 @@ export default function ChatPage() {
 
                 {verdict.funded && (
                   <div className="border-t border-green-800 pt-4">
-                    <h3 className="font-semibold text-white mb-2">Claim Your $1 USDC</h3>
+                    <h3 className="font-semibold text-white mb-2">Claim Your ${getFundingAmount(verdict.score)} USDC</h3>
                     <p className="text-zinc-400 text-sm mb-3">
                       Enter your Base wallet address to receive your funding:
                     </p>

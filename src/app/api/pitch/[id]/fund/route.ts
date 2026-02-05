@@ -8,6 +8,27 @@ import { base } from "viem/chains";
 const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const USDC_DECIMALS = 6;
 
+/**
+ * Calculate funding amount based on score
+ * - Score 10 exactly → $100
+ * - Score 9.1-9.9 → $5-$10 (interpolated)
+ * - Score 8.0-9.0 → $1-$4 (interpolated)
+ */
+function calculateFundingAmount(score: number): number {
+  if (score === 10) {
+    return 100;
+  } else if (score >= 9.1 && score <= 9.9) {
+    // Interpolate between $5 (at 9.1) and $10 (at 9.9)
+    const normalized = (score - 9.1) / 0.8; // 0 to 1
+    return Math.round(5 + normalized * 5); // $5 to $10
+  } else if (score >= 8.0 && score <= 9.0) {
+    // Interpolate between $1 (at 8.0) and $4 (at 9.0)
+    const normalized = (score - 8.0) / 1.0; // 0 to 1
+    return Math.round(1 + normalized * 3); // $1 to $4
+  }
+  return 1; // Fallback
+}
+
 // ERC20 transfer ABI
 const ERC20_ABI = [
   {
@@ -83,8 +104,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       transport: http(),
     });
 
-    // Send $1 USDC
-    const amount = parseUnits("1", USDC_DECIMALS);
+    // Calculate funding amount based on score
+    const fundingAmount = calculateFundingAmount(pitch.score || 8);
+    const amount = parseUnits(fundingAmount.toString(), USDC_DECIMALS);
 
     const data = encodeFunctionData({
       abi: ERC20_ABI,
@@ -109,7 +131,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ 
       success: true, 
       txHash,
-      message: "Funding sent successfully!" 
+      amount: fundingAmount,
+      message: `$${fundingAmount} USDC sent successfully!` 
     });
   } catch (error) {
     console.error("Funding error:", error);

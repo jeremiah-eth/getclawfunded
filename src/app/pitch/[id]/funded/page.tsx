@@ -10,6 +10,7 @@ import { useEffect } from "react";
 export default function FundedPage() {
   const searchParams = useSearchParams();
   const txHash = searchParams.get("tx");
+  const amount = searchParams.get("amount") || "1";
 
   useEffect(() => {
     // Celebration confetti
@@ -48,7 +49,7 @@ export default function FundedPage() {
           You're Funded!
         </h1>
         <p className="text-zinc-400 mb-8">
-          Congratulations! You convinced Kaido. $1 USDC is on its way to your wallet.
+          Congratulations! You convinced Kaido. ${amount} USDC is on its way to your wallet.
         </p>
 
         <Card className="bg-zinc-900 border-zinc-800 mb-8">
@@ -57,7 +58,7 @@ export default function FundedPage() {
             <ul className="text-left text-zinc-300 space-y-3">
               <li className="flex items-start gap-2">
                 <span className="text-green-500">✓</span>
-                <span>$1 USDC sent to your Base wallet</span>
+                <span>${amount} USDC sent to your Base wallet</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-green-500">✓</span>

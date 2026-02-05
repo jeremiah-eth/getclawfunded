@@ -17,6 +17,20 @@ interface FundedStartup {
   txHash: string;
 }
 
+// Calculate funding amount based on score
+function getFundingAmount(score: number): number {
+  if (score === 10) return 100;
+  if (score >= 9.1 && score <= 9.9) {
+    const normalized = (score - 9.1) / 0.8;
+    return Math.round(5 + normalized * 5);
+  }
+  if (score >= 8.0 && score <= 9.0) {
+    const normalized = (score - 8.0) / 1.0;
+    return Math.round(1 + normalized * 3);
+  }
+  return 1;
+}
+
 export default function LeaderboardPage() {
   const [startups, setStartups] = useState<FundedStartup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -136,6 +150,9 @@ export default function LeaderboardPage() {
                             <Badge className="bg-green-900 text-green-300">
                               Score: {startup.score.toFixed(1)}
                             </Badge>
+                            <Badge className="bg-amber-900 text-amber-300">
+                              ${getFundingAmount(startup.score)} USDC
+                            </Badge>
                             <Badge variant="outline" className="border-zinc-700 text-zinc-300">
                               {startup.valuation}
                             </Badge>
@@ -184,7 +201,7 @@ export default function LeaderboardPage() {
               <Card className="bg-zinc-900 border-zinc-800">
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-white">
-                    ${startups.length}
+                    ${startups.reduce((acc, s) => acc + getFundingAmount(s.score), 0)}
                   </div>
                   <div className="text-zinc-500 text-sm">Total Raised</div>
                 </CardContent>
