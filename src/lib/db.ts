@@ -292,4 +292,87 @@ export async function getVcAgent(id: string) {
   };
 }
 
+// Get pitches that need VC attention
+export async function getPendingPitches() {
+  await ensureInit();
+  
+  // Get pitches where:
+  // 1. Status is pending (new pitch, needs initial response)
+  // 2. OR last message is from founder (needs VC response)
+  const result = await db.execute(`
+    SELECT DISTINCT p.* FROM pitches p
+    LEFT JOIN chat_messages cm ON p.id = cm.pitch_id
+    WHERE p.status NOT IN ('funded', 'rejected')
+    AND (
+      -- New pitch with no messages
+      NOT EXISTS (SELECT 1 FROM chat_messages WHERE pitch_id = p.id)
+      -- Or last message is from founder
+      OR p.id IN (
+        SELECT pitch_id FROM chat_messages 
+        WHERE pitch_id = p.id 
+        GROUP BY pitch_id 
+        HAVING MAX(created_at) = (
+          SELECT MAX(created_at) FROM chat_messages 
+          WHERE pitch_id = p.id AND role = 'founder'
+        )
+      )
+    )
+    ORDER BY p.created_at ASC
+  `);
+
+  return result.rows.map((row) => ({
+    id: row.id as string,
+    startup_name: row.startup_name as string,
+    one_liner: row.one_liner as string,
+    problem: row.problem as string,
+    solution: row.solution as string,
+    market: row.market as string,
+    traction: row.traction as string,
+    team: row.team as string,
+    ask: row.ask as string,
+    twitter_handle: row.twitter_handle as string,
+    email: row.email as string,
+    status: row.status as string,
+    created_at: row.created_at as string,
+  }));
+}
+
+// Simpler version - get pitches awaiting VC response
+export async function getPitchesNeedingResponse() {
+  await ensureInit();
+  
+  const result = await db.execute(`
+    SELECT p.*, 
+           (SELECT COUNT(*) FROM chat_messages WHERE pitch_id = p.id) as message_count,
+           (SELECT role FROM chat_messages WHERE pitch_id = p.id ORDER BY created_at DESC LIMIT 1) as last_role
+    FROM pitches p
+    WHERE p.status NOT IN ('funded', 'rejected')
+    ORDER BY p.created_at ASC
+  `);
+
+  return result.rows
+    .filter((row) => {
+      const messageCount = row.message_count as number;
+      const lastRole = row.last_role as string | null;
+      // Needs response if: no messages yet, OR last message was from founder
+      return messageCount === 0 || lastRole === 'founder';
+    })
+    .map((row) => ({
+      id: row.id as string,
+      startup_name: row.startup_name as string,
+      one_liner: row.one_liner as string,
+      problem: row.problem as string,
+      solution: row.solution as string,
+      market: row.market as string,
+      traction: row.traction as string,
+      team: row.team as string,
+      ask: row.ask as string,
+      twitter_handle: row.twitter_handle as string,
+      email: row.email as string,
+      status: row.status as string,
+      created_at: row.created_at as string,
+      message_count: row.message_count as number,
+    }));
+}
+
 export default db;
